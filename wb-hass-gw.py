@@ -82,6 +82,7 @@ config_schema = Schema({
             Optional('qos', default=0): int,
             Optional('retain', default=False): bool,
             Optional('publish_delay', default=1.0): float,
+            Optional('publish_values_delay', default=1.0): float,
         },
         Optional('inverse', default=[]): [str],
         Optional('split_devices', default=[]): [str],
@@ -136,6 +137,7 @@ async def main(conf):
         config_qos=hass_conf['publish_config']['qos'],
         config_retain=hass_conf['publish_config']['retain'],
         config_publish_delay=hass_conf['publish_config']['publish_delay'],
+        config_publish_values_delay=hass_conf['publish_config']['publish_values_delay'],
         inverse=hass_conf['inverse'],
         split_devices=hass_conf['split_devices'],
         split_entities=hass_conf['split_entities']

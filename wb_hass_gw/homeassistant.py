@@ -31,6 +31,7 @@ class HomeAssistantConnector(BaseConnector):
                  config_qos,
                  config_retain,
                  config_publish_delay,
+                 config_publish_values_delay,
                  inverse,
                  split_devices,
                  split_entities
@@ -53,6 +54,7 @@ class HomeAssistantConnector(BaseConnector):
         self._config_qos = config_qos
         self._config_retain = config_retain
         self._config_publish_delay = config_publish_delay # Delay (sec) before publishing to ensure that we got all meta topics
+        self._config_publish_values_delay = config_publish_delay # Delay (sec) before publishing values after publishing config, to ensure that HA has processed config info
         self._inverse = inverse
         self._split_devices = split_devices
         self._split_entities = split_entities
@@ -136,6 +138,7 @@ class HomeAssistantConnector(BaseConnector):
         async def do_publish_config():
             await asyncio.sleep(self._config_publish_delay)
             self._publish_config_sync(device, control)
+            await asyncio.sleep(self._config_publish_values_delay)
 
             # Publish availability and state every time after publishing config
             self._publish_availability_sync(device, control)
