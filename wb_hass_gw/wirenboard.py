@@ -16,10 +16,13 @@ class WirenConnector(BaseConnector):
     _control_state_publish_qos = 1
     _control_state_publish_retain = False
 
-    def __init__(self, broker_host, broker_port, username, password, client_id, topic_prefix):
+    def __init__(self, broker_host, broker_port, username, password, client_id, topic_prefix, subscribe_qos, publish_qos, retain):
         super().__init__(broker_host, broker_port, username, password, client_id)
 
         self._topic_prefix = topic_prefix
+        self._subscribe_qos = subscribe_qos
+        self._control_state_publish_qos = publish_qos
+        self._control_state_publish_retain = retain
 
         self._device_meta_topic_re = re.compile(self._topic_prefix + r"/devices/([^/]*)/meta/([^/]*)")
         self._control_meta_topic_re = re.compile(self._topic_prefix + r"/devices/([^/]*)/controls/([^/]*)/meta/([^/]*)")

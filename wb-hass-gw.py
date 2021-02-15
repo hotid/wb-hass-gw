@@ -48,7 +48,10 @@ config_schema = Schema({
         Optional('username'): str,
         Optional('password'): str,
         Optional('client_id', default='wb-hass-gw'): str,
-        Optional('topic_prefix', default=''): str
+        Optional('topic_prefix', default=''): str,
+        Optional('subscribe_qos', default=0): int,
+        Optional('publish_qos', default=0): int,
+        Optional('retain', default=True): bool
     },
     Required('homeassistant'): {
         Required('broker_host'): str,
@@ -106,7 +109,10 @@ async def main(conf):
         username=wiren_conf['username'] if 'username' in wiren_conf else None,
         password=wiren_conf['password'] if 'password' in wiren_conf else None,
         client_id=wiren_conf['client_id'],
-        topic_prefix=wiren_conf['topic_prefix']
+        topic_prefix=wiren_conf['topic_prefix'],
+        subscribe_qos=wiren_conf['subscribe_qos'],
+        publish_qos=wiren_conf['publish_qos'],
+        retain=wiren_conf['retain']
     )
     hass = HomeAssistantConnector(
         broker_host=hass_conf['broker_host'],
