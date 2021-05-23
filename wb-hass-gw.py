@@ -68,6 +68,9 @@ config_schema = Schema({
         Optional('debounce', default={}) : {
             Optional('sensor', default=1000): int
         },
+        Optional('ignore_debounce_percent', default={}) : {
+            Optional('sensor', default=10): int
+        },
         Optional('subscribe_qos', default=0): int,
         Optional('publish_availability', default={}): {
             Optional('qos', default=0): int,
@@ -128,6 +131,7 @@ async def main(conf):
         status_payload_online=hass_conf['status_payload_online'],
         status_payload_offline=hass_conf['status_payload_offline'],
         debounce=hass_conf['debounce'],
+        ignore_debounce_percent=hass_conf['ignore_debounce_percent'],
         subscribe_qos=hass_conf['subscribe_qos'],
         availability_qos=hass_conf['publish_availability']['qos'],
         availability_retain=hass_conf['publish_availability']['retain'],

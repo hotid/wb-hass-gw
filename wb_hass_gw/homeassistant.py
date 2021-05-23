@@ -22,6 +22,7 @@ class HomeAssistantConnector(BaseConnector):
                  status_payload_online,
                  status_payload_offline,
                  debounce,
+                 ignore_debounce_percent,
                  subscribe_qos,
                  availability_qos,
                  availability_retain,
@@ -45,6 +46,7 @@ class HomeAssistantConnector(BaseConnector):
         self._status_payload_online = status_payload_online
         self._status_payload_offline = status_payload_offline
         self._debounce = debounce
+        self._ignore_debounce_percent = ignore_debounce_percent
         self._subscribe_qos = subscribe_qos
         self._availability_retain = availability_retain
         self._availability_qos = availability_qos
@@ -85,6 +87,7 @@ class HomeAssistantConnector(BaseConnector):
             if control_set_state_topic_match:
                 device = WirenBoardDeviceRegistry().get_device(control_set_state_topic_match.group(1))
                 control = device.get_control(control_set_state_topic_match.group(2))
+                control.prev_state = control.state
                 self.wiren.set_control_state(device, control, payload)
 
     def _publish_all_controls(self):
@@ -112,8 +115,46 @@ class HomeAssistantConnector(BaseConnector):
                 if control.id in self._debounce_last_published:
                     interval = (time.time() - self._debounce_last_published[control.id]) * 1000
                     if interval < debounce_interval:
-                        return
+                        if self._check_debounce_ignore(device, control):
+                            return
         self._publish_state_sync(device, control)
+
+    def _check_debounce_ignore(self, device, control):
+        component = self._component_types[control.id]
+        if component not in self._ignore_debounce_percent:
+             return True;
+
+        ignore_debounce_percent = self._ignore_debounce_percent[component]
+
+        if ignore_debounce_percent == 0:
+             return True;
+
+        if control.prev_state is None:
+             return False;
+
+        if not self._is_number(control.prev_state):
+             return True;
+
+        if float(control.prev_state) == 0:
+             return False;
+
+        state_change = abs(float(control.state) - float(control.prev_state))
+        change_percent =  round(100 * state_change / abs(float(control.prev_state)),2)
+
+        if change_percent > ignore_debounce_percent:
+            if state_change < 0.1: #TODO: allow configuration of this value
+                 return True
+            else:
+                 return False
+        else:
+            return True
+
+    def _is_number(self,string):
+        try:
+            float(string)
+            return True
+        except ValueError:
+            return False
 
     def _publish_state_sync(self, device, control):
         target_topic = f"{self._topic_prefix}devices/{device.id}/controls/{control.id}"

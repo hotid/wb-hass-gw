@@ -91,6 +91,7 @@ class WirenConnector(BaseConnector):
         elif control_state_topic_match:
             device = WirenBoardDeviceRegistry().get_device(control_state_topic_match.group(1))
             control = device.get_control(control_state_topic_match.group(2))
+            control.prev_state = control.state
             control.state = payload
             self.hass.publish_state(device, control)
 

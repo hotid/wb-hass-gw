@@ -89,6 +89,8 @@ homeassistant:
   status_payload_offline: 'offline'
   debounce:
     sensor: 1000 # (ms) debounce for sensors to prevent HA from flood
+  ignore_debounce_percent:
+    sensor: 10 # (%) ignore debounce interval (send value immediately) if value changed > x%
   subscribe_qos: 0
   publish_availability:
     qos: 0
